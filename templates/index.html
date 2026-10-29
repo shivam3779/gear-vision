@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GearVision AI | Intelligent Defect Inspection System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">GEARVISION <span class="badge-tag">AI CORE</span></h1>
+                    <p class="brand-subtitle">High-Precision Industrial Gear Quality Inspection</p>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <div class="header-status-top">
+                    <div class="theme-toggle-row">
+                        <button type="button" id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Dark / Light Mode" aria-label="Toggle light or dark theme">
+                            <span class="theme-icon sun-icon" title="Light Mode">☀️</span>
+                            <span class="theme-icon moon-icon" title="Dark Mode">🌙</span>
+                            <span class="theme-toggle-knob"></span>
+                        </button>
+                    </div>
+                    <div class="status-pill">
+                        <span class="pulsing-dot"></span>
+                        <span>YOLOv8 Engine Ready</span>
+                    </div>
+                </div>
+                <div class="model-tag">Defects: Break | Lack | Scratch</div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Grid -->
+        <main class="main-grid">
+            <!-- Left Column: Upload & Controls -->
+            <section class="panel upload-panel">
+                <div class="panel-header">
+                    <h2>1. Image Ingestion</h2>
+                    <span class="step-num">STEP 01</span>
+                </div>
+
+                <!-- Dropzone Area -->
+                <div id="dropZone" class="drop-zone">
+                    <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="file-input-hidden">
+                    <div class="drop-zone-content">
+                        <div class="upload-icon-wrapper">
+                            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3 class="drop-title">Drag & Drop Gear Image</h3>
+                        <p class="drop-desc">or click anywhere to browse local files (JPG, PNG, WEBP)</p>
+                        <button type="button" id="browseBtn" class="btn btn-secondary">Browse Image</button>
+                    </div>
+
+                    <!-- Image Preview overlay if chosen -->
+                    <div id="previewContainer" class="preview-container hidden">
+                        <img id="previewThumb" src="" alt="Selected gear image">
+                        <button type="button" id="clearImageBtn" class="btn-icon-close" title="Remove image">&times;</button>
+                        <span id="previewName" class="preview-filename"></span>
+                    </div>
+                </div>
+
+                <!-- Detection Tuning Controls -->
+                <div class="controls-card">
+                    <div class="control-header">
+                        <label for="confRange">Confidence Threshold</label>
+                        <span id="confValue" class="slider-display">15%</span>
+                    </div>
+                    <input type="range" id="confRange" min="5" max="90" value="15" step="1" class="custom-slider">
+                    <p class="control-hint">Model sensitivity: 15% detects subtle micro-scratches & fractures.</p>
+                </div>
+
+                <!-- Primary Action Button -->
+                <button type="button" id="analyzeBtn" class="btn btn-primary" disabled>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    <span>Analyze Gear Surface</span>
+                </button>
+
+                <!-- Preset Sample Images -->
+                <div class="samples-section">
+                    <h4 class="samples-heading">Quick Test with Demo Gears:</h4>
+                    <div class="samples-grid">
+                        {% for sample in samples %}
+                        <button type="button" class="sample-chip" data-sample="{{ sample }}">
+                            <span class="sample-icon">⚙️</span>
+                            <span class="sample-label">Sample #{{ loop.index }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Visual Inspection & Report -->
+            <section class="panel results-panel">
+                <div class="panel-header">
+                    <h2>2. Inspection Evaluation</h2>
+                    <div class="view-toggles" id="viewToggles">
+                        <button type="button" class="view-tab active" data-view="annotated">Analyzed</button>
+                        <button type="button" class="view-tab" data-view="split">Side-by-Side</button>
+                        <button type="button" class="view-tab" data-view="original">Original</button>
+                    </div>
+                </div>
+
+                <!-- Initial Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Awaiting Gear Image</h3>
+                    <p>Upload a gear image on the left or select a sample to generate defect bounding boxes and telemetry.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-state hidden">
+                    <div class="scanner-spinner">
+                        <div class="spinner-ring"></div>
+                        <div class="gear-center">⚙️</div>
+                    </div>
+                    <p class="loading-text">Neural Network Scanning Surface...</p>
+                    <p class="loading-sub">Evaluating fractures, tooth lack, and scratch deformities</p>
+                </div>
+
+                <!-- Analysis Results Section (Populated dynamically) -->
+                <div id="resultsContent" class="results-content hidden">
+                    <!-- Status Banner -->
+                    <div id="statusBanner" class="status-banner banner-damaged">
+                        <div class="status-icon-box" id="statusIconBox">⚠️</div>
+                        <div class="status-text-box">
+                            <h3 id="statusTitle" class="status-title">DAMAGED GEAR DETECTED</h3>
+                            <p id="statusSubtitle" class="status-subtitle">Total Defects Found: 3 anomalies detected</p>
+                        </div>
+                        <div class="status-action">
+                            <button type="button" id="downloadBtn" class="btn btn-outline" title="Save annotated image">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span>Save Result</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Badges Row -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <span class="stat-label">TOTAL DEFECTS</span>
+                            <span id="statTotal" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card stat-break">
+                            <span class="stat-label">BREAKS</span>
+                            <span id="statBreak" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card stat-lack">
+                            <span class="stat-label">LACKS</span>
+                            <span id="statLack" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card stat-scratch">
+                            <span class="stat-label">SCRATCHES</span>
+                            <span id="statScratch" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">LATENCY</span>
+                            <span id="statLatency" class="stat-value">-- ms</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Comparison Canvas -->
+                    <div class="viewer-container">
+                        <!-- Single View (Annotated / Original) -->
+                        <div id="singleViewer" class="image-viewer-frame">
+                            <img id="mainResultImg" src="" alt="Analyzed gear inspection result">
+                        </div>
+
+                        <!-- Side-by-side View -->
+                        <div id="splitViewer" class="split-viewer-frame hidden">
+                            <div class="split-pane">
+                                <span class="pane-badge">Original</span>
+                                <img id="splitOriginalImg" src="" alt="Original Gear">
+                            </div>
+                            <div class="split-pane">
+                                <span class="pane-badge pane-badge-accent">AI Annotated</span>
+                                <img id="splitAnnotatedImg" src="" alt="Annotated Gear">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Defects Table / Breakdown -->
+                    <div class="defect-log-card">
+                        <div class="defect-log-header">
+                            <h4>Defect Telemetry Log</h4>
+                            <span id="defectLogCount" class="log-count">0 items</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="defect-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Defect Class</th>
+                                        <th>Confidence</th>
+                                        <th>Bounding Box [X1, Y1, X2, Y2]</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="defectTableBody">
+                                    <!-- Rows populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <span>Powered by YOLOv8 Deep Learning Defect Detection Model</span>
+            <span class="sep">&bull;</span>
+            <span>Real-time Industrial Surface Quality Assurance</span>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
