@@ -7,9 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewThumb = document.getElementById('previewThumb');
     const previewName = document.getElementById('previewName');
     const clearImageBtn = document.getElementById('clearImageBtn');
-
-    const confRange = document.getElementById('confRange');
-    const confValue = document.getElementById('confValue');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const sampleChips = document.querySelectorAll('.sample-chip');
 
@@ -66,11 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTheme(nextTheme);
         });
     }
-
-    // 1. Confidence Slider Listener
-    confRange.addEventListener('input', (e) => {
-        confValue.textContent = `${e.target.value}%`;
-    });
 
     // 2. File Selection Handlers
     browseBtn.addEventListener('click', (e) => {
@@ -185,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingState.classList.remove('hidden');
         analyzeBtn.disabled = true;
 
-        const confThresh = (parseFloat(confRange.value) / 100.0).toFixed(2);
+        const confThresh = 0.15;
 
         try {
             let response;
